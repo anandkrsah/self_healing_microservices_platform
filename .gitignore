@@ -1,0 +1,9 @@
+infra/.env
+.env
+*.pem
+*.key
+.vault_pass
+__pycache__/
+*.pyc
+.DS_Store
+*.log
