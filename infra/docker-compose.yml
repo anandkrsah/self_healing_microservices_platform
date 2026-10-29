@@ -1,0 +1,28 @@
+services:
+  api-service:
+    build:
+      context: ../services/api-service
+    image: api-service:local
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  auth-service:
+    build:
+      context: ../services/auth-service 
+    image: auth-service:local
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
+
+  worker-service:
+    build:
+      context: ../services/worker-service
+    image: worker-service:local
+    ports:
+     - "5002:5002"
+    restart: unless-stopped
+
+
+
+
