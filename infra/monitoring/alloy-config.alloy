@@ -1,0 +1,17 @@
+discovery.docker "containers" {
+  host = "tcp://docker-socket-proxy:2375"
+}
+
+loki.source.docker "docker_logs" {
+  host = "tcp://docker-socket-proxy:2375"
+
+  targets = discovery.docker.containers.targets
+
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

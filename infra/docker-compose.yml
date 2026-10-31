@@ -38,7 +38,6 @@ services:
       - api-service
       - auth-service
       - worker-service
-
   grafana:
    image: grafana/grafana:10.3.3
    container_name: grafana
@@ -57,6 +56,63 @@ services:
    depends_on:
     - prometheus
 
+  loki:
+    image: grafana/loki:3.5.0
+    container_name: loki
+    restart: unless-stopped
+
+    ports:
+      - "3100:3100"
+
+    volumes:
+      - type: bind
+        source: ./monitoring/loki-config.yml
+        target: /etc/loki/local-config.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+
+      - loki_data:/loki
+
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+
+    environment:
+      CONTAINERS: 1
+      INFO: 1
+      NETWORKS: 1
+      POST: 0
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    networks:
+      - default
+
+  alloy:
+    image: grafana/alloy:v1.11.0
+    container_name: alloy
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:12345:12345"
+
+    volumes:
+      - ./monitoring/alloy-config.alloy:/etc/alloy/config.alloy:ro
+
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+
+    depends_on:
+      - docker-socket-proxy
+      - loki
+
   alertmanager:
     image: prom/alertmanager:v0.27.0
     container_name: alertmanager
@@ -72,4 +128,5 @@ services:
            create_host_path: false
 volumes:
   grafana_data:
+  loki_data:
      
