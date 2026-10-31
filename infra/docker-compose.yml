@@ -57,6 +57,19 @@ services:
    depends_on:
     - prometheus
 
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+       - type: bind
+         source: ./monitoring/alertmanager.yml
+         target: /etc/alertmanager/alertmanager.yml
+         read_only: true
+         bind:
+           create_host_path: false
 volumes:
   grafana_data:
      
